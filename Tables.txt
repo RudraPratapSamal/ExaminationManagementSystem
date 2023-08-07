@@ -1,0 +1,68 @@
+create table projectUser
+(
+	username varchar2(10) primary key,
+	password varchar2(12) not null,
+	name varchar2(20) not null,
+	designation varchar2(15) not null,
+	role varchar2(15) not null,
+	contact number check(contact<10000000000),
+	constraint cont_uni unique(contact)
+)
+
+create table projectstudent
+(
+	roll number primary key,
+	name varchar2(25) not null,
+	branch varchar2(20) not null,
+	course varchar2(20) not null,
+	semester number check(semester between 1 and 8),
+	batch number not null
+)
+
+#trigger for generating unique rollno
+create or replace trigger gen_pro_roll
+before
+insert on projectstudent
+for each row
+declare
+c number;
+g number;
+begin
+if (:new.roll) is null then 
+	select count(*) into c from projectstudent where batch=to_char(sysdate,'YYYY');
+	if c=0 then
+		:new.roll:=(cast(concat(to_char(sysdate,'YYYY'),'1001') as int));
+	else
+		select greatest(roll) into g from projectstudent;
+		:new.roll:=g+1;
+	end if;
+end if;
+end;
+
+create table cse4
+(
+	subcode varchar2(20) primary key,
+	sub varchar2(20) not null
+)
+
+create table cse2
+(
+	subcode varchar2(20) primary key,
+	sub varchar2(20) not null
+)
+
+create table cse6
+(
+	subcode varchar2(20) primary key,
+	sub varchar2(20) not null
+)
+
+create table cse8
+(
+	subcode varchar2(20) primary key,
+	sub varchar2(20) not null
+)
+
+
+#datesheet joins
+'select cse2'+str(dateY)+'_dsheet.edate, cse2'+str(dateY)+'_dsheet.subcode, cse2'+str(dateY)+'_dsheet.sub, cse4'+str(dateY)+'_dsheet.subcode, cse4'+str(dateY)+'_dsheet.sub,cse6'+str(dateY)+'_dsheet.subcode, cse6'+str(dateY)+'_dsheet.sub,cse8'+str(dateY)+'_dsheet.subcode, cse8'+str(dateY)+'_dsheet.sub from cse'+str(dateY)+'_dsheet left join cse4'+str(dateY)+'_dsheet on cse2'+str(dateY)+'_dsheet.edate=cse4'+str(dateY)+'_dsheet.edate left join cse6'+str(dateY)+'_dsheet on cse6'+str(dateY)+'_dsheet.edate=cse4'+str(dateY)+'_dsheet.edate right join cse8'+str(dateY)+'_dsheet on cse8'+str(dateY)+'_dsheet.edate=cse6'+str(dateY)+'_dsheet.edate'
